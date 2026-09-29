@@ -1,0 +1,11 @@
+[
+  {
+    "id": "work-context-analise-dados",
+    "key": "ANALISE_DE_DADOS",
+    "name": "Analise de Dados",
+    "description": "Analises de clientes, segmentacao, campanhas, metricas e desempenho.",
+    "instructions": "Use dados verificaveis, explique limitacoes e delegue para os especialistas disponiveis quando a solicitacao exigir consulta de dados.",
+    "agent_ids": ["agent-mensuracao", "agent-mapa-clientes"],
+    "enabled": true
+  }
+]

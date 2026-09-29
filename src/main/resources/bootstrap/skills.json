@@ -1,0 +1,38 @@
+[
+  {
+    "id": "skill-campaign-measurement",
+    "key": "CAMPAIGN_MEASUREMENT",
+    "name": "Mensuracao de campanhas",
+    "description": "Consulta metricas, KPIs e desempenho de campanhas.",
+    "instructions": "Use esta skill para analisar metricas, KPIs, conversoes e desempenho de campanhas. Consulte a fonte Genie quando precisar de dados.",
+    "tool_ids": ["tool-enviar-mensagem-genie"],
+    "enabled": true
+  },
+  {
+    "id": "skill-campaign-performance",
+    "key": "CAMPAIGN_PERFORMANCE",
+    "name": "Performance de campanhas",
+    "description": "Interpreta resultados e comparativos de campanhas.",
+    "instructions": "Use esta skill para interpretar resultados, tendencias e comparativos de campanhas. Consulte a fonte Genie quando precisar de dados.",
+    "tool_ids": ["tool-enviar-mensagem-genie"],
+    "enabled": true
+  },
+  {
+    "id": "skill-customer-profile",
+    "key": "CUSTOMER_PROFILE",
+    "name": "Perfil de clientes",
+    "description": "Consulta perfis, renda, historico e caracteristicas de clientes.",
+    "instructions": "Use esta skill para mapear perfis de clientes e seus historicos. Consulte a fonte Genie quando precisar de dados.",
+    "tool_ids": ["tool-enviar-mensagem-genie"],
+    "enabled": true
+  },
+  {
+    "id": "skill-customer-segmentation",
+    "key": "CUSTOMER_SEGMENTATION",
+    "name": "Segmentacao de clientes",
+    "description": "Consulta segmentos, audiencias e propensao de compra.",
+    "instructions": "Use esta skill para analisar segmentos, audiencias e propensao de compra. Consulte a fonte Genie quando precisar de dados.",
+    "tool_ids": ["tool-enviar-mensagem-genie"],
+    "enabled": true
+  }
+]

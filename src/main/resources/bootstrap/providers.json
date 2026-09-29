@@ -1,0 +1,11 @@
+[
+  {
+    "id": "provider-genie",
+    "name": "Genie",
+    "category": "GENIE",
+    "external_agent_id": null,
+    "tools": [],
+    "config": {},
+    "enabled": true
+  }
+]

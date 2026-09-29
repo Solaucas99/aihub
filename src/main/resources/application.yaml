@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: hubdeia
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  mongodb:
+    uri: ${MONGODB_URI:mongodb://admin:admin123@localhost:27017/appdb?authSource=admin}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      repositories:
+        enabled: false
+
+logging:
+  file:
+    name: ${HUB_LOG_FILE:logs/hubdeia.log}
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 14
+  level:
+    root: INFO
+    com.lamorim.hubdeia: DEBUG
+
+hub:
+  openai:
+    base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+    api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-5}
+    subagent-model: ${OPENAI_SUBAGENT_MODEL:${OPENAI_MODEL:gpt-5}}
+    max-tool-rounds: ${OPENAI_MAX_TOOL_ROUNDS:8}
+    timeout-ms: ${OPENAI_TIMEOUT_MS:60000}
+  genie:
+    base-url: ${GENIE_BASE_URL:}
+    auth-url: ${GENIE_AUTH_URL:${GENIE_BASE_URL:}}
+    client-id: ${GENIE_CLIENT_ID:}
+    client-secret: ${GENIE_CLIENT_SECRET:}
+    poll-interval-ms: ${GENIE_POLL_INTERVAL_MS:8000}
+    poll-timeout-ms: ${GENIE_POLL_TIMEOUT_MS:1800000}
+    request-timeout-ms: ${GENIE_REQUEST_TIMEOUT_MS:60000}
+    viz-conversion-timeout-ms: ${GENIE_VIZ_CONVERSION_TIMEOUT_MS:${OPENAI_TIMEOUT_MS:60000}}
+    viz-conversion-model: ${GENIE_VIZ_CONVERSION_MODEL:${OPENAI_MODEL:gpt-5.1}}
+  agent-run:
+    task-parallelism: ${TASK_PARALLELISM:4}
+    task-max-attempts: ${TASK_RETRY_ATTEMPTS:3}
+  bootstrap:
+    enabled: ${HUB_BOOTSTRAP_ENABLED:true}

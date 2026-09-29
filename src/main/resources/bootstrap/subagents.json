@@ -1,0 +1,46 @@
+[
+  {
+    "id": "agent-mensuracao",
+    "name": "Agente Mensuracao",
+    "description": "Responsavel por desempenho de campanhas, metricas, KPIs, taxas de conversao e resultados de marketing.",
+    "system_prompt": "Voce e um agente especializado em mensuracao e analise de dados de desempenho de campanhas. Forneca respostas precisas e relevantes dentro do seu escopo. Sempre use a tool disponivel para consultar a fonte de dados quando precisar de informacoes factuais.",
+    "skill_ids": ["skill-campaign-measurement", "skill-campaign-performance"],
+    "providers": [
+      {
+        "id": "subagent-provider-mensuracao-genie",
+        "provider_id": "provider-genie",
+        "config": {
+          "space_id": {
+            "$env": "GENIE_MENSURACAO_SPACE_ID",
+            "fallback_env": "GENIE_DEFAULT_SPACE_ID",
+            "fallback": "01f1a959ef7115c789ed26617f2d915e"
+          }
+        },
+        "enabled": true
+      }
+    ],
+    "enabled": true
+  },
+  {
+    "id": "agent-mapa-clientes",
+    "name": "Agente Mapa de Clientes",
+    "description": "Responsavel por dados de clientes, perfil, segmentacao, renda, historico de interacoes e propensao de compra.",
+    "system_prompt": "Voce e um agente especializado em mapear clientes e suas interacoes. Forneca respostas precisas e relevantes dentro do seu escopo. Sempre use a tool disponivel para consultar a fonte de dados quando precisar de informacoes factuais.",
+    "skill_ids": ["skill-customer-profile", "skill-customer-segmentation"],
+    "providers": [
+      {
+        "id": "subagent-provider-mapa-clientes-genie",
+        "provider_id": "provider-genie",
+        "config": {
+          "space_id": {
+            "$env": "GENIE_MAPA_CLIENTES_SPACE_ID",
+            "fallback_env": "GENIE_DEFAULT_SPACE_ID",
+            "fallback": "01f1a959c5241402bb43591d3b51116c"
+          }
+        },
+        "enabled": true
+      }
+    ],
+    "enabled": true
+  }
+]

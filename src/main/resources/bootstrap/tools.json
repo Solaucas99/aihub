@@ -1,0 +1,14 @@
+[
+  {
+    "id": "tool-enviar-mensagem-genie",
+    "provider_id": "provider-genie",
+    "name": "Enviar mensagem Genie",
+    "type": "FUNCTION",
+    "function_name": "tool-enviar-mensagem-genie",
+    "description": "Consulta a Genie e continua uma conversa existente quando disponivel.",
+    "input_schema": {},
+    "output_schema": {},
+    "config": {},
+    "enabled": true
+  }
+]

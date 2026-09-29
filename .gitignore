@@ -1,0 +1,55 @@
+HELP.md
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Local environment and runtime data ###
+.env
+.env.*
+!.env.example
+logs/*
+!logs/.gitkeep
+*.log
+*.log.*
+*.pid
+*.hprof
+payload_genie*.json
+.codex/
+
+### Legacy JS Hub runtime data ###
+node_modules/
+js-hub/data/workflows/
+js-hub/src/logs/
+
+### Local Docker Compose overrides ###
+docker-compose.override.yml
+docker-compose.override.yaml
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
