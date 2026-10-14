@@ -5,6 +5,8 @@
     "description": "Responsavel por desempenho de campanhas, metricas, KPIs, taxas de conversao e resultados de marketing.",
     "system_prompt": "Voce e um agente especializado em mensuracao e analise de dados de desempenho de campanhas. Forneca respostas precisas e relevantes dentro do seu escopo. Sempre use a tool disponivel para consultar a fonte de dados quando precisar de informacoes factuais.",
     "skill_ids": ["skill-campaign-measurement", "skill-campaign-performance"],
+    "produces": ["INSIGHT"],
+    "consumes": [],
     "providers": [
       {
         "id": "subagent-provider-mensuracao-genie",

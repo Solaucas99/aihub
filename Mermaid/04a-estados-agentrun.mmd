@@ -1,0 +1,14 @@
+%% Estados de uma AgentRun (collection agent_runs, campo status).
+stateDiagram-v2
+  [*] --> RUNNING : AgentRunService.start
+  RUNNING --> FINISHED : finalizeIfReady quando todas as tasks estao FINISHED ou CANCELLED
+  RUNNING --> CANCELLED : validador devolve CANCEL
+  RUNNING --> FAILED : excecao em task ou na run
+  FINISHED --> [*]
+  CANCELLED --> [*]
+  FAILED --> [*]
+  note right of RUNNING
+    Unica saida de RUNNING e terminal e acontece UMA vez
+    (update condicional status igual a RUNNING).
+    Logs, tasks e mensagens tardios sao descartados.
+  end note

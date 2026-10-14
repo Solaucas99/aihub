@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.lamorim.hubdeia.application.provider.ProgressReporter;
+import com.lamorim.hubdeia.domain.model.Visual;
+import com.lamorim.hubdeia.domain.model.VisualFormat;
 
 @Component
 public class GenieResponseParser {
@@ -30,7 +32,7 @@ public class GenieResponseParser {
 		this.visualizationSpecConverter = visualizationSpecConverter;
 	}
 
-	public Map<String, Object> parse(GenieMessageResult result, ProgressReporter reporter) {
+	public GenieParsedResponse parse(GenieMessageResult result, ProgressReporter reporter) {
 		Map<String, Object> raw = message(result.rawResponse());
 		logger.debug("Genie completed payload. conversationId={}, messageId={}, payload={}", result.conversationId(), result.messageId(), raw);
 		List<Map<String, Object>> attachments = attachments(raw);
@@ -40,14 +42,33 @@ public class GenieResponseParser {
 		List<Map<String, Object>> artifacts = new ArrayList<>();
 		String markdown = markdown(raw, report, visualizations, queries, artifacts, result, reporter);
 
-		return Map.of(
+		Map<String, Object> structured = Map.of(
 				"content", markdown,
-				"artifacts", Map.of("visualizations", artifacts),
+				"visualizations", artifacts,
 				"provider", Map.of(
 						"provider_id", "GENIE",
 						"conversation_id", result.conversationId(),
 						"message_id", result.messageId())
 		);
+		return new GenieParsedResponse(structured, visuals(artifacts));
+	}
+
+	/** Genie's ready visualizations as neutral visuals: tables arrive as HTML, charts as Vega-Lite. */
+	private List<Visual> visuals(List<Map<String, Object>> rendered) {
+		List<Visual> visuals = new ArrayList<>();
+		for (Map<String, Object> item : rendered) {
+			if (!"READY".equals(item.get("status"))) {
+				continue;
+			}
+			String id = String.valueOf(item.get("id"));
+			String title = String.valueOf(item.getOrDefault("title", ""));
+			if (item.get("html") instanceof String html && !html.isBlank()) {
+				visuals.add(new Visual(id, title, VisualFormat.HTML, html));
+			} else if (item.get("spec") instanceof String spec && !spec.isBlank()) {
+				visuals.add(new Visual(id, title, VisualFormat.VEGA_LITE, spec));
+			}
+		}
+		return visuals;
 	}
 
 	private String markdown(

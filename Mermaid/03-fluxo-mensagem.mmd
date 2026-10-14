@@ -1,0 +1,67 @@
+%% Fluxo ponta a ponta de uma mensagem, com os nomes REAIS de classes e metodos.
+sequenceDiagram
+  autonumber
+  actor U as Usuario
+  participant CC as ConversationController
+  participant CS as ConversationService
+  participant W as ConversationWorker
+  participant PA as ConversationPlannerAgent
+  participant PC as OpenAiPlannerClient
+  participant H as PlannerDecisionHandler
+  participant WC as WorkContextService
+  participant RS as AgentRunService
+  participant O as AgentRunOrchestrator
+  participant DR as TaskDependencyResolver
+  participant E as SubagentTaskExecutor
+  participant PB as SubagentPromptBuilder
+  participant GT as GenieMessageTool
+  participant V as TaskValidatorAgent
+  participant AS as ArtifactService
+  participant CM as CommunicatorAgent
+
+  U->>CC: POST /conversation com Authorization e message
+  CC->>CS: create(userId, message)
+  CS-->>CC: MessageAcceptedResponse
+  CC->>W: dispatch(conversationId, messageId)
+  CC-->>U: 202 Accepted
+  W->>W: lock por conversa (64 locks)
+  W->>PA: plan(conversationId, messageId)
+  PA->>PC: plan(PlanningInput)
+  PC-->>PA: PlannerDecision (json_schema agent_run_plan)
+  PA-->>W: PlannerDecision
+  W->>H: apply(conversationId, messageId, decision)
+  alt decision sem tasks
+    H->>CS: appendAssistantMessage(conversationId, texto)
+  else decision com tasks
+    H->>H: validatedContextId (valida contexto e subagentes antes de gravar)
+    H->>WC: activate(conversationId, contextId)
+    H->>RS: start(...) cria AgentRun RUNNING
+    H-->>W: runId
+    W->>O: execute(conversationId, runId)
+    O->>DR: resolve(tasks, subagentsById)
+    loop cada task em paralelo respeitando produces e consumes
+      O->>E: execute(conversationId, runId, task, reporter)
+      E->>PB: build(conversationId, runId, subagent, task)
+      E->>GT: execute(context, arguments) via tool call
+      GT-->>E: ProviderToolResult com texto e visuals
+      E-->>O: TaskExecutionResult
+      O->>RS: recordTaskResult(...)
+      O->>V: validate(conversationId, runId, task)
+      V-->>O: TaskValidationResult
+      alt CONTINUE
+        O->>AS: publish(run, task, result)
+      else RETRY abaixo de max_attempts
+        O->>RS: prepareRetry(...) e repete a tentativa
+      else HITL
+        O->>O: humanInput.create(...) e task FINISHED sem aprovacao
+      else CANCEL
+        O->>CM: introduceCancelledRun(feedback)
+        O->>RS: cancel(...)
+      end
+    end
+    O->>CM: introduceFinishedRun ou introducePartialRun
+    O->>RS: finish(...) grava mensagens assistant no chat
+  end
+  U->>CC: GET /conversations/id/agent-runs/runId em polling
+  CC->>RS: status(conversationId, runId)
+  RS-->>U: AgentRunStatusResponse

@@ -12,45 +12,36 @@ import java.util.concurrent.TimeoutException;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.annotation.PreDestroy;
 
-import com.lamorim.hubdeia.config.HubRestClientFactory;
+import com.lamorim.hubdeia.application.llm.OpenAiChatClient;
 
 @Component
 public class VisualizationSpecConverter {
 
 	private static final Logger logger = LoggerFactory.getLogger(VisualizationSpecConverter.class);
 
-	private final RestClient restClient;
-	private final String apiKey;
+	private final OpenAiChatClient chat;
 	private final String model;
 	private final long conversionTimeoutMs;
 	private final ExecutorService conversionExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
 	public VisualizationSpecConverter(
-			RestClient.Builder restClientBuilder,
-			HubRestClientFactory restClients,
-			@Value("${hub.openai.base-url:https://api.openai.com/v1}") String baseUrl,
-			@Value("${hub.openai.api-key:}") String apiKey,
+			OpenAiChatClient chat,
 			@Value("${hub.genie.viz-conversion-model:gpt-5}") String model,
-			@Value("${hub.openai.timeout-ms:60000}") long timeoutMs,
 			@Value("${hub.genie.viz-conversion-timeout-ms:15000}") long conversionTimeoutMs
 	) {
-		this.restClient = restClients.create(restClientBuilder, baseUrl, timeoutMs);
-		this.apiKey = apiKey;
+		this.chat = chat;
 		this.model = model;
 		this.conversionTimeoutMs = Math.max(1_000, conversionTimeoutMs);
 	}
 
 	public String convert(Object providerDefinition, String title, String chartType, GenieQueryResult queryResult) {
-		if (!StringUtils.hasText(apiKey)) {
+		if (!chat.isConfigured()) {
 			return fallbackSpec(title, chartType, queryResult);
 		}
 
@@ -94,20 +85,7 @@ public class VisualizationSpecConverter {
 	}
 
 	private String requestConversion(Document payload, String title, String chartType, GenieQueryResult queryResult) {
-		String response = restClient.post()
-				.uri("/chat/completions")
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-				.accept(MediaType.APPLICATION_JSON)
-				.contentType(MediaType.APPLICATION_JSON)
-				.body(payload.toJson())
-				.retrieve()
-				.body(String.class);
-		Document body = Document.parse(response);
-		List<Document> choices = body.getList("choices", Document.class, List.of());
-		if (choices.isEmpty()) return fallbackWithReason(title, chartType, queryResult, "OpenAI nao retornou choices.");
-		Document message = choices.getFirst().get("message", Document.class);
-		if (message == null) return fallbackWithReason(title, chartType, queryResult, "OpenAI nao retornou message.");
-
+		Document message = chat.complete(payload);
 		String content = message.getString("content");
 		if (!StringUtils.hasText(content)) {
 			String refusal = message.getString("refusal");

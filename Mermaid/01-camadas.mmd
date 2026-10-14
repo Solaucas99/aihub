@@ -1,0 +1,102 @@
+%% Visao em camadas do Hub de IA (leitura humana). O grafo completo de dependencias esta em 02-dependencias-completo.mmd.
+flowchart TB
+  U["Usuario / Frontend estatico<br/>frontend/index.html + app.js + styles.css"]
+
+  subgraph API["api"]
+    CC["ConversationController"]
+    AH["AuthHeaders"]
+    HC["HelloController"]
+  end
+
+  subgraph CONV["application - conversa e planejamento"]
+    CS["ConversationService"]
+    CW["ConversationWorker<br/>threads virtuais + 64 locks por conversa"]
+    PA["ConversationPlannerAgent"]
+    PC["OpenAiPlannerClient<br/>prompt + json_schema agent_run_plan"]
+    PH["PlannerDecisionHandler<br/>valida tudo antes de gravar"]
+    WCS["WorkContextService"]
+    HIS["HumanInputService"]
+  end
+
+  subgraph RUNS["application - runs e execucao"]
+    ARS["AgentRunService"]
+    ARST["AgentRunStore<br/>updates atomicos"]
+    ORQ["AgentRunOrchestrator<br/>pool paralelo"]
+    TDR["TaskDependencyResolver<br/>produces / consumes"]
+    EX["SubagentTaskExecutor<br/>laco modelo e tools"]
+    PB["SubagentPromptBuilder"]
+    TES["TaskExecutionService<br/>memoria curta"]
+    VAL["TaskValidatorAgent<br/>LLM juiz"]
+    COM["CommunicatorAgent"]
+    ART["ArtifactService"]
+    POL["AgentSkillAccessPolicy"]
+  end
+
+  subgraph CONTENT["conteudo neutro"]
+    TO["TaskOutput<br/>markdown e plainText"]
+    LLM["OpenAiChatClient"]
+  end
+
+  subgraph PROV["provider"]
+    PT["ProviderTool<br/>contrato"]
+    PTR["ProviderToolRegistry"]
+    subgraph GEN["genie"]
+      GMT["GenieMessageTool"]
+      GC["GenieClient + GenieAuthClient"]
+      GP["GenieResponseParser"]
+      GR["GenieTableRenderer"]
+      VSC["VisualizationSpecConverter"]
+    end
+  end
+
+  subgraph DOM["domain"]
+    REPO["13 repositorios Spring Data"]
+    MODEL["27 records e enums"]
+  end
+
+  DB[("MongoDB<br/>13 colecoes")]
+  OAI["OpenAI"]
+  GENIE["Genie Databricks"]
+  CFG["config: BootstrapConfiguration, DotenvEnvironmentPostProcessor,<br/>HubRestClientFactory, CorsConfig"]
+
+  U -->|"REST + Authorization"| CC
+  CC --> AH
+  CC --> CS
+  CC --> CW
+  CC --> ARS
+  CC --> ART
+  CW --> PA --> PC --> LLM
+  CW --> PH
+  PH --> CS
+  PH --> WCS
+  PH --> HIS
+  PH --> ART
+  PH --> ARS
+  CW --> ORQ
+  ORQ --> ARS --> ARST
+  ORQ --> TDR
+  ORQ --> EX
+  ORQ --> VAL --> LLM
+  ORQ --> COM --> LLM
+  ORQ --> ART
+  EX --> PB
+  EX --> POL
+  EX --> PTR --> PT
+  EX --> TES
+  EX --> LLM
+  PB --> TES
+  PB --> ART
+  GMT -.->|implements| PT
+  GMT --> GC
+  GMT --> GP
+  GP --> GR
+  GP --> VSC --> LLM
+  GC --> GENIE
+  LLM --> OAI
+  EX --> TO
+  ART --> TO
+  CS --> REPO
+  ARST --> DB
+  REPO --> DB
+  REPO --- MODEL
+  CFG -.-> REPO

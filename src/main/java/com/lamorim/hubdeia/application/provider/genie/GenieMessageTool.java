@@ -59,10 +59,12 @@ public class GenieMessageTool implements ProviderTool {
 				context.progressReporter()
 		);
 		context.progressReporter().report("GENIE_PROCESSING", "Processando resposta Genie");
-		Map<String, Object> structured = parser.parse(result, context.progressReporter());
+		GenieParsedResponse parsed = parser.parse(result, context.progressReporter());
+		Map<String, Object> structured = parsed.structured();
 		Instant now = Instant.now();
 		ProviderSession session = new ProviderSession(
 				context.existingSession() == null ? UUID.randomUUID().toString() : context.existingSession().id(),
+				context.conversationId(),
 				context.subagentId(),
 				context.subagentProvider().providerId(),
 				result.conversationId(),
@@ -75,7 +77,8 @@ public class GenieMessageTool implements ProviderTool {
 		return new ProviderToolResult(
 				String.valueOf(structured.get("content")),
 				structured,
-				session
+				session,
+				parsed.visuals()
 		);
 	}
 

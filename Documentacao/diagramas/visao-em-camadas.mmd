@@ -1,0 +1,27 @@
+%% Visão em camadas do Hub de IA (alto nível).
+flowchart TB
+  U["Usuário<br/>interface web (chat)"]
+  subgraph HUB["HUB DE IA"]
+    direction TB
+    API["API REST<br/>recebe a mensagem e informa o andamento"]
+    PLAN["Planejamento<br/>decide: responder ou delegar"]
+    ORQ["Orquestração<br/>tarefas em paralelo, validação, retry"]
+    COM["Comunicação<br/>monta a resposta final"]
+    PROV["Providers<br/>conectores de fontes de dados (hoje: Genie)"]
+  end
+  DB[("MongoDB<br/>única fonte da verdade")]
+  LLM["OpenAI<br/>planejador, validador, comunicador, especialistas"]
+  SRC["Genie / Databricks<br/>dados de campanhas e clientes"]
+
+  U --> API --> PLAN --> ORQ --> COM
+  ORQ --> PROV --> SRC
+  PLAN --> LLM
+  ORQ --> LLM
+  COM --> LLM
+  ORQ -->|"grava o estado"| DB
+
+  classDef box fill:#F3F4F6,stroke:#6B7280,color:#111827
+  classDef llm fill:#DCEBFF,stroke:#2563EB,color:#0B2A5B
+  classDef ext fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E
+  class API,PLAN,ORQ,COM,PROV box
+  class LLM,SRC,DB,U ext

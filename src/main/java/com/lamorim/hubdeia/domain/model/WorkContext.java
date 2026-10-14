@@ -24,4 +24,8 @@ public record WorkContext(
 
 		boolean enabled
 ) {
+
+	public WorkContext {
+		agentIds = agentIds == null ? List.of() : agentIds;
+	}
 }

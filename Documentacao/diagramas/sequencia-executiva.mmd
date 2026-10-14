@@ -1,0 +1,35 @@
+%% Quem fala com quem, em ordem, para uma pergunta que exige dados.
+sequenceDiagram
+  autonumber
+  actor U as Usuário
+  participant H as Hub (API)
+  participant P as Planejador
+  participant O as Orquestrador
+  participant E as Especialista(s)
+  participant V as Validador
+  participant C as Comunicador
+  participant D as MongoDB
+
+  U->>H: envia a pergunta
+  H->>D: grava a mensagem
+  H-->>U: aceito, processando
+  H->>P: planeja (conversa, resultados, artefatos, contexto)
+  P-->>H: decisão: delegar tarefas
+  H->>D: cria a execução (RUNNING) e as tarefas
+  H->>O: executa
+  par para cada tarefa independente
+    O->>E: executa a tarefa
+    E-->>O: resposta (texto, tabelas, gráficos)
+    O->>V: valida
+    V-->>O: CONTINUE, RETRY, HITL ou CANCEL
+  end
+  O->>D: guarda resultados como artefatos
+  O->>C: pede a introdução
+  C-->>O: texto curto
+  O->>D: finaliza a execução e grava a resposta no chat
+  loop enquanto a execução roda
+    U->>H: consulta o andamento
+    H->>D: lê o status
+    H-->>U: status
+  end
+  U->>H: lê a resposta final

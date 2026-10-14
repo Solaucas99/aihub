@@ -1,0 +1,232 @@
+%% Modelo de dados do MongoDB (13 colecoes + 8 tipos embutidos). Campos gerados dos records de domain/model.
+%% Entidades em minusculas = colecoes; entidades em CamelCase = tipos embutidos dentro de outro documento.
+erDiagram
+  agent_runs {
+    string _id PK
+    string conversation_id
+    enum_AgentRunStatus status
+    list_Task tasks
+    list_AgentRunLog logs
+    list_FinalAnswerBlock final_answer
+    string triggering_message_id
+    string conversation_work_context_id
+    string continued_human_input_request_id
+    string agent_run_last_message
+    date created_at
+    date finished_at
+  }
+  artifacts {
+    string _id PK
+    string conversation_id
+    string work_context_id
+    string type
+    int version
+    enum_ArtifactStatus status
+    list_string derived_from
+    string title
+    string content
+    list_Visual visuals
+    string subagent_id
+    string created_by_run_id
+    string created_by_task_id
+    date created_at
+  }
+  conversation_work_contexts {
+    string _id PK
+    string conversation_id
+    string work_context_id
+    enum_ConversationWorkContextStatus status
+    string last_agent_run_id
+    date created_at
+    date updated_at
+  }
+  conversations {
+    string _id PK
+    string user_id
+    string chat_last_message
+    date created_at
+    date updated_at
+  }
+  human_input_requests {
+    string _id PK
+    string conversation_id
+    string agent_run_id
+    string task_id
+    string question
+    enum_HumanInputRequestStatus status
+    string answer_message_id
+    date created_at
+    date answered_at
+  }
+  messages {
+    string _id PK
+    string conversation_id
+    string role
+    string content
+    date created_at
+  }
+  provider_sessions {
+    string _id PK
+    string conversation_id
+    string subagent_id
+    string provider_id
+    string external_session_id
+    string status
+    object metadata
+    date created_at
+    date updated_at
+  }
+  providers {
+    string _id PK
+    string name
+    string category
+    string external_agent_id
+    list_Tool tools
+    object config
+    bool enabled
+  }
+  skills {
+    string _id PK
+    string key
+    string name
+    string description
+    string instructions
+    list_string tool_ids
+    bool enabled
+  }
+  subagents {
+    string _id PK
+    string name
+    string description
+    string system_prompt
+    list_string skill_ids
+    list_SubagentProvider providers
+    list_string produces
+    list_string consumes
+    bool enabled
+  }
+  task_executions {
+    string _id PK
+    string conversation_id
+    string agent_run_id
+    string task_id
+    string subagent_id
+    list_ExecutionMessage messages
+    list_ToolCall tool_calls
+    object input
+    object output
+    string status
+    int attempt
+    date started_at
+    date finished_at
+  }
+  tools {
+    string _id PK
+    string provider_id
+    string name
+    string type
+    string function_name
+    string description
+    object input_schema
+    object output_schema
+    object config
+    bool enabled
+  }
+  work_contexts {
+    string _id PK
+    string key
+    string name
+    string description
+    string instructions
+    list_string agent_ids
+    bool enabled
+  }
+  Task {
+    string _id PK
+    string description
+    string subagent_selected
+    enum_TaskStatus status
+    object input
+    object output
+    list_TaskValidation validations
+    int attempts
+    int max_attempts
+    date created_at
+    date finished_at
+  }
+  TaskValidation {
+    string status
+    string feedback
+    string message_to_user
+    int attempt
+    date validated_at
+  }
+  AgentRunLog {
+    date at
+    string level
+    string message
+    enum_AgentRunStatus status
+    string execution_status
+  }
+  FinalAnswerBlock {
+    string type
+    string title
+    string markdown
+    string task_id
+    string subagent_id
+  }
+  ExecutionMessage {
+    string _id PK
+    string role
+    string content
+    date created_at
+  }
+  ToolCall {
+    string _id PK
+    string tool_id
+    string provider_id
+    object input
+    object output
+    string output_text
+    string status
+    date started_at
+    date finished_at
+  }
+  Visual {
+    string _id PK
+    string title
+    enum_VisualFormat format
+    string payload
+  }
+  SubagentProvider {
+    string _id PK
+    string provider_id
+    object config
+    bool enabled
+  }
+  conversations ||--o{ messages : conversation_id
+  conversations ||--o{ conversation_work_contexts : conversation_id
+  conversations ||--o{ agent_runs : conversation_id
+  conversations ||--o{ human_input_requests : conversation_id
+  conversations ||--o{ provider_sessions : conversation_id
+  conversations ||--o{ artifacts : conversation_id
+  conversations ||--o{ task_executions : conversation_id
+  work_contexts ||--o{ conversation_work_contexts : work_context_id
+  conversation_work_contexts ||--o{ agent_runs : conversation_work_context_id
+  messages ||--o{ agent_runs : triggering_message_id
+  agent_runs ||--o{ task_executions : agent_run_id
+  agent_runs ||--o{ human_input_requests : agent_run_id
+  agent_runs ||--o{ artifacts : created_by_run_id
+  artifacts }o--o{ artifacts : derived_from
+  work_contexts }o--o{ subagents : agent_ids
+  subagents }o--o{ skills : skill_ids
+  skills }o--o{ tools : tool_ids
+  tools }o--|| providers : provider_id
+  agent_runs ||--|{ Task : tasks
+  Task ||--o{ TaskValidation : validations
+  agent_runs ||--o{ AgentRunLog : logs
+  agent_runs ||--o{ FinalAnswerBlock : final_answer
+  task_executions ||--o{ ExecutionMessage : messages
+  task_executions ||--o{ ToolCall : tool_calls
+  artifacts ||--o{ Visual : visuals
+  subagents ||--o{ SubagentProvider : providers

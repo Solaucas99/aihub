@@ -2,75 +2,107 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
   <title>Hub de IA</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">IA</div>
-        <div>
-          <strong>Hub de IA</strong>
-          <span>Agentes e execucoes</span>
-        </div>
+  <div id="app" class="app" data-sidebar="open" data-panel="closed">
+    <div id="scrim" class="scrim" hidden></div>
+
+    <aside class="sidebar" aria-label="Navegacao">
+      <div class="sidebar-head">
+        <a class="brand" href="./" aria-label="Hub de IA">
+          <span class="brand-mark" data-icon="sparkle"></span>
+          <span class="brand-name">Hub de IA</span>
+        </a>
+        <button id="sidebarClose" class="icon-btn" type="button" aria-label="Recolher barra lateral" data-icon="sidebar"></button>
       </div>
 
-      <button id="newChatButton" class="primary-action" type="button">Nova conversa</button>
+      <button id="newChatButton" class="new-chat" type="button">
+        <span data-icon="plus"></span>
+        <span>Nova conversa</span>
+      </button>
 
-      <div class="config-panel">
-        <label>
-          User ID
-          <input id="userIdInput" autocomplete="off" spellcheck="false">
-        </label>
-        <label>
-          API
-          <input id="apiBaseInput" autocomplete="off" spellcheck="false">
-        </label>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="section-title">Conversas</div>
+      <nav class="sidebar-body" aria-label="Conversas">
+        <div class="sidebar-label">Recentes</div>
         <div id="conversationList" class="conversation-list"></div>
+      </nav>
+
+      <div class="sidebar-foot">
+        <button id="settingsButton" class="user-chip" type="button" aria-label="Configuracoes">
+          <span id="userAvatar" class="avatar-sm">U</span>
+          <span class="user-chip-text">
+            <strong id="userLabel">user-test-1</strong>
+            <small>Configuracoes</small>
+          </span>
+          <span data-icon="gear"></span>
+        </button>
       </div>
     </aside>
 
-    <main class="chat-pane">
+    <main class="main">
       <header class="topbar">
-        <div>
-          <h1 id="conversationTitle">Nova conversa</h1>
-          <p id="conversationSubtitle">Envie uma mensagem para iniciar uma conversa.</p>
-        </div>
-        <div id="statusBadge" class="status-badge">IDLE</div>
+        <button id="sidebarOpen" class="icon-btn only-collapsed" type="button" aria-label="Abrir barra lateral" data-icon="sidebar"></button>
+        <h1 id="conversationTitle" class="topbar-title">Nova conversa</h1>
+        <span id="statusPill" class="status-pill" hidden></span>
+        <div class="topbar-spacer"></div>
+        <button id="themeButton" class="icon-btn" type="button" aria-label="Alternar tema" data-icon="moon"></button>
+        <button id="panelButton" class="panel-btn" type="button" aria-label="Artefatos" aria-expanded="false">
+          <span data-icon="layers"></span>
+          <span>Artefatos</span>
+          <span id="artifactCount" class="count" hidden>0</span>
+        </button>
       </header>
 
-      <section id="messages" class="messages"></section>
+      <div id="scroller" class="scroller">
+        <div id="thread" class="thread">
+          <div id="messages" class="messages"></div>
+          <div id="activity" class="activity-slot"></div>
+        </div>
+      </div>
 
-      <form id="composer" class="composer">
-        <textarea id="messageInput" rows="1" placeholder="Envie uma mensagem para o Hub de IA"></textarea>
-        <button id="sendButton" type="submit">Enviar</button>
-      </form>
+      <div class="composer-wrap">
+        <form id="composer" class="composer">
+          <textarea id="messageInput" rows="1" placeholder="Como posso ajudar voce hoje?" aria-label="Mensagem"></textarea>
+          <div class="composer-row">
+            <span class="composer-hint">Enter envia · Shift+Enter quebra a linha</span>
+            <button id="sendButton" class="send-btn" type="submit" aria-label="Enviar" data-icon="arrow-up" disabled></button>
+          </div>
+        </form>
+        <p class="footnote">O Hub de IA pode cometer erros. Confira os dados importantes.</p>
+      </div>
     </main>
 
-    <aside class="agent-run-panel">
-      <div class="panel-header">
-        <div>
-          <strong>AgentRun</strong>
-          <span id="workflowIdLabel">Sem execucao ativa</span>
-        </div>
-        <button id="refreshButton" class="ghost-button" type="button">Atualizar</button>
-      </div>
-
-      <div class="agent-run-current">
-        <span id="executionStatus">Aguardando</span>
-        <p id="currentMessage">Os logs aparecerão aqui durante a execução.</p>
-      </div>
-
-      <div class="section-title">Logs</div>
-      <div id="workflowLogs" class="agent-run-logs"></div>
+    <aside id="artifactPanel" class="panel" aria-label="Artefatos">
+      <header class="panel-head">
+        <button id="panelBack" class="icon-btn" type="button" aria-label="Voltar" data-icon="arrow-left" hidden></button>
+        <strong id="panelTitle">Artefatos</strong>
+        <div class="topbar-spacer"></div>
+        <button id="panelClose" class="icon-btn" type="button" aria-label="Fechar" data-icon="close"></button>
+      </header>
+      <div id="panelBody" class="panel-body"></div>
     </aside>
   </div>
+
+  <dialog id="settingsDialog" class="dialog">
+    <form id="settingsForm" method="dialog">
+      <h2>Configuracoes</h2>
+      <label>
+        <span>User ID</span>
+        <input id="userIdInput" autocomplete="off" spellcheck="false">
+      </label>
+      <label>
+        <span>URL da API</span>
+        <input id="apiBaseInput" autocomplete="off" spellcheck="false">
+      </label>
+      <div class="dialog-actions">
+        <button id="settingsCancel" class="btn" type="button">Cancelar</button>
+        <button class="btn primary" type="submit" value="save">Salvar</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>

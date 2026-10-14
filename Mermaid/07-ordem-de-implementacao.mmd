@@ -1,0 +1,31 @@
+%% Fases de implementacao com PORTOES de verificacao. So avance para a fase seguinte quando o portao passar.
+%% Cada fase cita a spec (specs/NN-*.md) e os arquivos que ela produz; o checklist completo esta em 08-checklist-de-verificacao.md.
+flowchart TD
+  F1["FASE 1 - Projeto e infra (spec 02)<br/>pom.xml, mvnw e wrapper, docker-compose.yaml, .gitignore, .gitattributes, logs/.gitkeep,<br/>application.yaml, spring.factories, HubdeiaApplication,<br/>DotenvEnvironmentPostProcessor, HubRestClientFactory, CorsConfig"]
+  G1{{"PORTAO 1<br/>docker compose up -d e mongo na porta 27017<br/>mvnw -q -DskipTests compile"}}
+
+  F2["FASE 2 - Dominio Mongo (spec 03 e Modelling/)<br/>27 records e enums em domain/model + 13 repositorios<br/>Modelling/01 e 02 criam colecoes, indices e catalogo"]
+  G2{{"PORTAO 2<br/>compila<br/>mongosh --file Modelling/04-verify.js -> OK"}}
+
+  F3["FASE 3 - Catalogo (spec 04)<br/>5 JSONs em resources/bootstrap, BootstrapConfiguration,<br/>AgentSkillAccessPolicy"]
+  G3{{"PORTAO 3<br/>BootstrapConfigurationTest 3 testes (usa a base MongoIntegrationTest)<br/>AgentSkillAccessPolicyTest 1 teste"}}
+
+  F4["FASE 4 - Conteudo, artefatos e contrato de tools (spec 08 parte 1)<br/>OpenAiChatClient, TaskOutput, ProviderTool, ProviderToolContext, ProviderToolResult,<br/>ProviderToolRegistry, ProgressReporter, ArtifactView, ArtifactService, Text, MonotonicTime,<br/>e as dependencias do ArtifactService: WorkContextService, TaskExecutionResult,<br/>ConversationMemorySanitizer (14 arquivos, compila sozinha)"]
+  G4{{"PORTAO 4<br/>TaskOutputTest 7 testes<br/>ArtifactServiceTest 6 testes"}}
+
+  F5["FASE 5 - Conversa, planejador, runs e executor (specs 06, 07 e 08 parte 2)<br/>compilam JUNTOS (dependencia circular entre os pacotes planner e run):<br/>os 8 DTOs de api/dto (ConversationService e AgentRunService os usam),<br/>ConversationService, ConversationWorker, HumanInputService, TaskExecutionService,<br/>planner/*, AgentRunStore, AgentRunService, TaskDependencyResolver, AgentRunOrchestrator,<br/>validation/*, communication/*, SubagentPromptBuilder, SubagentTaskExecutor (35 arquivos)"]
+  G5{{"PORTAO 5<br/>ConversationServiceTest 4, PlannerDecisionHandlerTest 10,<br/>OpenAiPlannerClientTest 5, ConversationPlannerAgentTest 4,<br/>AgentRunStoreTest 3, AgentRunOrchestratorTest 9,<br/>TaskDependencyResolverTest 7, SubagentMemoryTest 7"}}
+
+  F6["FASE 6 - Provider Genie (spec 09)<br/>GenieAuthClient, GenieClient, GenieQueryResultClient, GenieMessageTool,<br/>GenieResponseParser, GenieTableRenderer, VisualizationSpecConverter e 4 records"]
+  G6{{"PORTAO 6<br/>compila<br/>sem testes automaticos: validar manualmente contra o Genie real"}}
+
+  F7["FASE 7 - API REST (spec 05)<br/>AuthHeaders, ConversationController, HelloController<br/>(os DTOs ja vieram na fase 5)"]
+  G7{{"PORTAO 7<br/>mvnw spring-boot:run<br/>GET /hello -> Hello World!<br/>GET /conversations sem Authorization -> 401"}}
+
+  F8["FASE 8 - Frontend (spec 10)<br/>frontend/index.html, styles.css, app.js, README.md"]
+  G8{{"PORTAO 8<br/>abrir index.html, enviar mensagem,<br/>ver atividade do agente, resposta e painel de Artefatos"}}
+
+  F9["FASE 9 - Testes finais e docs (specs 11 e 12)<br/>HubdeiaApplicationTests, PlannerLiveEvalTest + fixture,<br/>docs/data-model.md, docs/implementation-summary.md"]
+  G9{{"PORTAO FINAL<br/>mvnw test -> Tests run 72, Failures 0, Errors 0, Skipped 5<br/>checklist 08 100 por cento marcado"}}
+
+  F1 --> G1 --> F2 --> G2 --> F3 --> G3 --> F4 --> G4 --> F5 --> G5 --> F6 --> G6 --> F7 --> G7 --> F8 --> G8 --> F9 --> G9

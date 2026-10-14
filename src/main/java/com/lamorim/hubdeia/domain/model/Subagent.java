@@ -20,12 +20,25 @@ public record Subagent(
 		@Field("system_prompt")
 		String systemPrompt,
 
-	@Field("skill_ids")
-	List<String> skillIds,
+		@Field("skill_ids")
+		List<String> skillIds,
 
 		List<SubagentProvider> providers,
+
+		/** Artifact types this subagent publishes when its task output is approved. */
+		List<String> produces,
+
+		/** Artifact types injected into this subagent's prompt when available. */
+		List<String> consumes,
 
 		@Indexed
 		boolean enabled
 ) {
+
+	public Subagent {
+		skillIds = skillIds == null ? List.of() : skillIds;
+		providers = providers == null ? List.of() : providers;
+		produces = produces == null ? List.of() : produces;
+		consumes = consumes == null ? List.of() : consumes;
+	}
 }

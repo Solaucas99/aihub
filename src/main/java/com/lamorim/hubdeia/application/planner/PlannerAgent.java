@@ -1,8 +1,7 @@
 package com.lamorim.hubdeia.application.planner;
 
-import com.lamorim.hubdeia.domain.model.MainConversationChatHistory;
-
 public interface PlannerAgent {
 
-	PlannerDecision plan(MainConversationChatHistory conversation);
+	/** Decides how to handle the given user message of the conversation. */
+	PlannerDecision plan(String conversationId, String messageId);
 }

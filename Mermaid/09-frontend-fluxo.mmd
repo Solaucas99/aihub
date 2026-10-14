@@ -1,0 +1,34 @@
+%% Fluxo do frontend (frontend/app.js): envio, polling e renderizacao.
+flowchart TD
+  INIT["init<br/>icones, tema, sidebar, loadConversations<br/>se URL tem ?c abre a conversa"]
+  SEND["sendMessage<br/>mostra mensagem otimista data-local"]
+  POST{"conversa ja existe?"}
+  P1["POST /conversations/id"]
+  P2["POST /conversation"]
+  ACC["202: guarda conversation_id e message_id<br/>indicador pensando, loadConversations, startPolling"]
+  TICK["a cada 2200 ms: pollConversation"]
+  MSG["refreshMessages<br/>GET /conversations/id<br/>renderizacao incremental por ids"]
+  PEND{"mensagem pendente sem run?"}
+  RUNQ["GET .../agent-runs?triggering_message_id"]
+  HASRUN{"existe run?"}
+  DIRECT{"ja ha resposta assistant<br/>depois da mensagem?"}
+  STOPD["para o polling (resposta direta)"]
+  POLLRUN["pollAgentRun<br/>GET .../agent-runs/runId<br/>atualiza atividade e status"]
+  TERM{"status FINISHED, FAILED ou CANCELLED?"}
+  STOP["stopPolling"]
+  FIN["apos 700 ms: finishRun<br/>refreshMessages, loadArtifacts, loadConversations"]
+  ART["painel Artefatos<br/>GET /conversations/id/artifacts<br/>rendered_content, stale, status"]
+
+  INIT --> SEND --> POST
+  POST -->|sim| P1 --> ACC
+  POST -->|nao| P2 --> ACC
+  ACC --> TICK --> MSG --> PEND
+  PEND -->|sim| RUNQ --> HASRUN
+  HASRUN -->|sim| POLLRUN
+  HASRUN -->|nao| DIRECT
+  DIRECT -->|sim| STOPD
+  DIRECT -->|nao| TICK
+  PEND -->|nao, run conhecida| POLLRUN
+  POLLRUN --> TERM
+  TERM -->|nao| TICK
+  TERM -->|sim| STOP --> FIN --> ART

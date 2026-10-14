@@ -16,6 +16,9 @@ public record ToolCall(
 
 		Map<String, Object> input,
 		Map<String, Object> output,
+
+		@Field("output_text")
+		String outputText,
 		String status,
 
 		@Field("started_at")

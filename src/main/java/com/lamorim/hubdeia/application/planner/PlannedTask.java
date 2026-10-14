@@ -1,15 +1,8 @@
 package com.lamorim.hubdeia.application.planner;
 
-import java.util.List;
-
 public record PlannedTask(
 		String description,
 		String enrichedContent,
-		String subagentId,
-		List<String> dependsOn
+		String subagentId
 ) {
-
-	public List<String> safeDependsOn() {
-		return dependsOn == null ? List.of() : dependsOn;
-	}
 }

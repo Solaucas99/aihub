@@ -15,7 +15,7 @@ public class GenieTableRenderer {
 
 	public String render(Object providerDefinition, String title, GenieQueryResult queryResult) {
 		List<TableColumn> columns = columns(providerDefinition, queryResult);
-		StringBuilder html = new StringBuilder("<section class=\"genie-table\">");
+		StringBuilder html = new StringBuilder("<section class=\"data-table\">");
 		if (StringUtils.hasText(title)) {
 			html.append("<h3>").append(escape(title)).append("</h3>");
 		}

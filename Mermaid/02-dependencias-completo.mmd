@@ -1,0 +1,161 @@
+%% Dependencias de construtor (injecao) e implementacoes entre TODAS as classes e interfaces de src/main/java (fora records/enums).
+%% Gerado mecanicamente a partir do codigo. Seta solida: A recebe B no construtor. Seta tracejada: A implementa B.
+flowchart LR
+  subgraph pkg__raiz_["(raiz)"]
+    HelloController["HelloController<br/>«RestController»"]
+    HubdeiaApplication["HubdeiaApplication<br/>«SpringBootApplication»"]
+  end
+  subgraph pkg_api["api"]
+    AuthHeaders["AuthHeaders<br/>«Component»"]
+    ConversationController["ConversationController<br/>«RestController»"]
+  end
+  subgraph pkg_application["application"]
+    ArtifactService["ArtifactService<br/>«Service»"]
+    ConversationMemorySanitizer["ConversationMemorySanitizer<br/>«Component»"]
+    ConversationService["ConversationService<br/>«Service»"]
+    ConversationWorker["ConversationWorker<br/>«Component»"]
+    HumanInputService["HumanInputService<br/>«Service»"]
+    MonotonicTime["MonotonicTime"]
+    TaskExecutionService["TaskExecutionService<br/>«Service»"]
+    Text["Text"]
+    WorkContextService["WorkContextService<br/>«Service»"]
+  end
+  subgraph pkg_application_communication["application.communication"]
+    CommunicatorAgent["CommunicatorAgent<br/>«Component»"]
+  end
+  subgraph pkg_application_llm["application.llm"]
+    OpenAiChatClient["OpenAiChatClient<br/>«Component»"]
+  end
+  subgraph pkg_application_orchestration["application.orchestration"]
+    AgentRunOrchestrator["AgentRunOrchestrator<br/>«Component»"]
+    AgentSkillAccessPolicy["AgentSkillAccessPolicy<br/>«Component»"]
+    SubagentPromptBuilder["SubagentPromptBuilder<br/>«Component»"]
+    SubagentTaskExecutor["SubagentTaskExecutor<br/>«Component»"]
+    TaskDependencyResolver["TaskDependencyResolver<br/>«Component»"]
+  end
+  subgraph pkg_application_planner["application.planner"]
+    ConversationPlannerAgent["ConversationPlannerAgent<br/>«Component»"]
+    OpenAiPlannerClient["OpenAiPlannerClient<br/>«Component»"]
+    PlannerAgent["PlannerAgent"]
+    PlannerDecisionHandler["PlannerDecisionHandler<br/>«Component»"]
+  end
+  subgraph pkg_application_provider["application.provider"]
+    ProgressReporter["ProgressReporter"]
+    ProviderTool["ProviderTool"]
+    ProviderToolRegistry["ProviderToolRegistry<br/>«Component»"]
+  end
+  subgraph pkg_application_provider_genie["application.provider.genie"]
+    GenieAuthClient["GenieAuthClient<br/>«Component»"]
+    GenieClient["GenieClient<br/>«Component»"]
+    GenieMessageTool["GenieMessageTool<br/>«Component»"]
+    GenieQueryResultClient["GenieQueryResultClient<br/>«Component»"]
+    GenieResponseParser["GenieResponseParser<br/>«Component»"]
+    GenieTableRenderer["GenieTableRenderer<br/>«Component»"]
+    VisualizationSpecConverter["VisualizationSpecConverter<br/>«Component»"]
+  end
+  subgraph pkg_application_run["application.run"]
+    AgentRunService["AgentRunService<br/>«Service»"]
+    AgentRunStore["AgentRunStore<br/>«Component»"]
+  end
+  subgraph pkg_application_validation["application.validation"]
+    TaskValidatorAgent["TaskValidatorAgent<br/>«Component»"]
+  end
+  subgraph pkg_config["config"]
+    BootstrapConfiguration["BootstrapConfiguration<br/>«Configuration»"]
+    CorsConfig["CorsConfig<br/>«Configuration»"]
+    DotenvEnvironmentPostProcessor["DotenvEnvironmentPostProcessor"]
+    HubRestClientFactory["HubRestClientFactory<br/>«Component»"]
+  end
+  subgraph pkg_domain_repository["domain.repository"]
+    AgentRunRepository["AgentRunRepository<br/>«Repository»"]
+    ArtifactRepository["ArtifactRepository<br/>«Repository»"]
+    ConversationRepository["ConversationRepository<br/>«Repository»"]
+    ConversationWorkContextRepository["ConversationWorkContextRepository<br/>«Repository»"]
+    HumanInputRequestRepository["HumanInputRequestRepository<br/>«Repository»"]
+    MessageRepository["MessageRepository<br/>«Repository»"]
+    ProviderRepository["ProviderRepository<br/>«Repository»"]
+    ProviderSessionRepository["ProviderSessionRepository<br/>«Repository»"]
+    SkillRepository["SkillRepository<br/>«Repository»"]
+    SubagentExecutionRepository["SubagentExecutionRepository<br/>«Repository»"]
+    SubagentRepository["SubagentRepository<br/>«Repository»"]
+    ToolRepository["ToolRepository<br/>«Repository»"]
+    WorkContextRepository["WorkContextRepository<br/>«Repository»"]
+  end
+  AgentRunOrchestrator --> AgentRunService
+  AgentRunOrchestrator --> SubagentTaskExecutor
+  AgentRunOrchestrator --> TaskValidatorAgent
+  AgentRunOrchestrator --> CommunicatorAgent
+  AgentRunOrchestrator --> HumanInputService
+  AgentRunOrchestrator --> ArtifactService
+  AgentRunOrchestrator --> SubagentRepository
+  AgentRunOrchestrator --> TaskDependencyResolver
+  AgentRunService --> AgentRunStore
+  AgentRunService --> AgentRunRepository
+  AgentRunService --> ConversationService
+  AgentRunService --> TaskExecutionService
+  AgentRunService --> WorkContextService
+  AgentSkillAccessPolicy --> SkillRepository
+  AgentSkillAccessPolicy --> ToolRepository
+  ArtifactService --> ArtifactRepository
+  ArtifactService --> SubagentRepository
+  ArtifactService --> WorkContextService
+  CommunicatorAgent --> OpenAiChatClient
+  ConversationController --> AuthHeaders
+  ConversationController --> ConversationService
+  ConversationController --> AgentRunService
+  ConversationController --> ArtifactService
+  ConversationController --> ConversationWorker
+  ConversationPlannerAgent --> ConversationService
+  ConversationPlannerAgent --> WorkContextService
+  ConversationPlannerAgent --> SubagentRepository
+  ConversationPlannerAgent --> HumanInputService
+  ConversationPlannerAgent --> ArtifactService
+  ConversationPlannerAgent --> AgentRunService
+  ConversationPlannerAgent --> OpenAiPlannerClient
+  ConversationPlannerAgent -.->|implements| PlannerAgent
+  ConversationService --> ConversationRepository
+  ConversationService --> MessageRepository
+  ConversationWorker --> ConversationService
+  ConversationWorker --> PlannerAgent
+  ConversationWorker --> PlannerDecisionHandler
+  ConversationWorker --> AgentRunOrchestrator
+  GenieAuthClient --> HubRestClientFactory
+  GenieClient --> HubRestClientFactory
+  GenieClient --> GenieAuthClient
+  GenieMessageTool --> GenieClient
+  GenieMessageTool --> GenieResponseParser
+  GenieMessageTool -.->|implements| ProviderTool
+  GenieQueryResultClient --> HubRestClientFactory
+  GenieQueryResultClient --> GenieAuthClient
+  GenieResponseParser --> GenieQueryResultClient
+  GenieResponseParser --> GenieTableRenderer
+  GenieResponseParser --> VisualizationSpecConverter
+  HumanInputService --> HumanInputRequestRepository
+  OpenAiChatClient --> HubRestClientFactory
+  OpenAiPlannerClient --> OpenAiChatClient
+  OpenAiPlannerClient --> ConversationMemorySanitizer
+  PlannerDecisionHandler --> ConversationService
+  PlannerDecisionHandler --> WorkContextService
+  PlannerDecisionHandler --> HumanInputService
+  PlannerDecisionHandler --> ArtifactService
+  PlannerDecisionHandler --> AgentRunService
+  ProviderToolRegistry --> ProviderTool
+  SubagentPromptBuilder --> AgentSkillAccessPolicy
+  SubagentPromptBuilder --> AgentRunService
+  SubagentPromptBuilder --> WorkContextService
+  SubagentPromptBuilder --> TaskExecutionService
+  SubagentPromptBuilder --> ArtifactService
+  SubagentTaskExecutor --> OpenAiChatClient
+  SubagentTaskExecutor --> SubagentRepository
+  SubagentTaskExecutor --> AgentSkillAccessPolicy
+  SubagentTaskExecutor --> ProviderToolRegistry
+  SubagentTaskExecutor --> SubagentPromptBuilder
+  SubagentTaskExecutor --> TaskExecutionService
+  TaskExecutionService --> SubagentExecutionRepository
+  TaskExecutionService --> ProviderSessionRepository
+  TaskValidatorAgent --> OpenAiChatClient
+  TaskValidatorAgent --> ConversationService
+  TaskValidatorAgent --> TaskExecutionService
+  VisualizationSpecConverter --> OpenAiChatClient
+  WorkContextService --> WorkContextRepository
+  WorkContextService --> ConversationWorkContextRepository

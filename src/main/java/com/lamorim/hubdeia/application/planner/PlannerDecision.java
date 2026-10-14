@@ -5,13 +5,19 @@ import java.util.List;
 public record PlannerDecision(
 		boolean shouldCreateTasks,
 		String responseMessage,
-		String workContextAction,
+		WorkContextAction workContextAction,
 		String workContextId,
 		String relatedHumanInputRequestId,
+		String reactivateArtifactId,
 		List<PlannedTask> tasks
 ) {
 
-	public List<PlannedTask> safeTasks() {
-		return tasks == null ? List.of() : tasks;
+	public PlannerDecision {
+		workContextAction = workContextAction == null ? WorkContextAction.NONE : workContextAction;
+		tasks = tasks == null ? List.of() : tasks;
+	}
+
+	public boolean hasTasks() {
+		return shouldCreateTasks && !tasks.isEmpty();
 	}
 }

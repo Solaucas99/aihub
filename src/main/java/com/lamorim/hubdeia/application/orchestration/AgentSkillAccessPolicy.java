@@ -3,6 +3,7 @@ package com.lamorim.hubdeia.application.orchestration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -25,7 +26,7 @@ public class AgentSkillAccessPolicy {
 	}
 
 	public List<Skill> skillsFor(Subagent subagent) {
-		List<String> ids = subagent.skillIds() == null ? List.of() : subagent.skillIds();
+		List<String> ids = subagent.skillIds();
 		return ids.isEmpty() ? List.of() : skills.findByIdInAndEnabledTrue(ids);
 	}
 
@@ -38,8 +39,8 @@ public class AgentSkillAccessPolicy {
 		return allowed;
 	}
 
-	private java.util.Optional<SubagentProvider> providerFor(Subagent subagent, String providerId) {
-		return (subagent.providers() == null ? List.<SubagentProvider>of() : subagent.providers()).stream()
+	private Optional<SubagentProvider> providerFor(Subagent subagent, String providerId) {
+		return subagent.providers().stream()
 				.filter(SubagentProvider::enabled)
 				.filter(provider -> providerId.equals(provider.providerId()))
 				.findFirst();

@@ -24,7 +24,7 @@ class AgentSkillAccessPolicyTest {
 		ToolRepository tools = Mockito.mock(ToolRepository.class);
 		AgentSkillAccessPolicy policy = new AgentSkillAccessPolicy(skills, tools);
 		Subagent subagent = new Subagent("agent-1", "Agente", "", "", List.of("skill-1"),
-				List.of(new SubagentProvider("genie", "provider-genie", Map.of(), true)), true);
+				List.of(new SubagentProvider("genie", "provider-genie", Map.of(), true)), List.of(), List.of(), true);
 		Skill skill = new Skill("skill-1", "ANALYSIS", "Analise", "", "", List.of("tool-genie", "tool-other"), true);
 		Tool genieTool = new Tool("tool-genie", "provider-genie", "Genie", "function", "enviarMensagemGenie", "", Map.of(), Map.of(), Map.of(), true);
 		Tool otherTool = new Tool("tool-other", "provider-other", "Other", "function", "otherTool", "", Map.of(), Map.of(), Map.of(), true);

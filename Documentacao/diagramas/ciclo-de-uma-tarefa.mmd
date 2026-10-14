@@ -1,0 +1,21 @@
+%% O ciclo de cada tarefa: executar, validar, e os quatro vereditos possíveis.
+flowchart LR
+  I["Tarefa autocontida<br/>enviada ao especialista"] --> E["ESPECIALISTA<br/>consulta a fonte<br/>de dados e responde"]
+  E --> V{{"VALIDADOR<br/>compara a resposta com<br/>o objetivo da tarefa"}}
+  V -->|"CONTINUE<br/>resposta boa"| A["Tarefa aprovada<br/>resultado vira artefato"]
+  V -->|"RETRY<br/>resposta ruim ou vazia"| R{"Ainda há<br/>tentativas?<br/>(máx. 3)"}
+  R -->|"sim"| E
+  R -->|"não"| C["Tarefa cancelada<br/>fica fora da resposta"]
+  V -->|"HITL<br/>falta decisão do usuário"| H["Pergunta pendente<br/>ao usuário"]
+  V -->|"CANCEL<br/>impedimento total"| X["Execução inteira<br/>cancelada"]
+
+  classDef llm fill:#DCEBFF,stroke:#2563EB,color:#0B2A5B,stroke-width:2px
+  classDef step fill:#F3F4F6,stroke:#6B7280,color:#111827
+  classDef good fill:#DCFCE7,stroke:#16A34A,color:#14532D
+  classDef warn fill:#FEF3C7,stroke:#D97706,color:#78350F
+  classDef bad fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D
+  class E,V llm
+  class I,R step
+  class A good
+  class H warn
+  class C,X bad

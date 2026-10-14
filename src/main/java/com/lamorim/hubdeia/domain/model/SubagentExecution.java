@@ -4,16 +4,22 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+/** One attempt of a subagent on a task, including its raw messages and tool calls. */
+@Document("task_executions")
+@CompoundIndex(def = "{'conversation_id': 1, 'task_id': 1}")
+@CompoundIndex(def = "{'conversation_id': 1, 'subagent_id': 1, 'started_at': -1}")
 public record SubagentExecution(
 		String id,
 
 		@Field("conversation_id")
 		String conversationId,
 
-	@Field("agent_run_id")
-	String agentRunId,
+		@Field("agent_run_id")
+		String agentRunId,
 
 		@Field("task_id")
 		String taskId,
@@ -21,10 +27,7 @@ public record SubagentExecution(
 		@Field("subagent_id")
 		String subagentId,
 
-		List<Message> messages,
-
-		@Field("provider_sessions")
-		List<ProviderSession> providerSessions,
+		List<ExecutionMessage> messages,
 
 		@Field("tool_calls")
 		List<ToolCall> toolCalls,
@@ -40,4 +43,9 @@ public record SubagentExecution(
 		@Field("finished_at")
 		Instant finishedAt
 ) {
+
+	public SubagentExecution {
+		messages = messages == null ? List.of() : messages;
+		toolCalls = toolCalls == null ? List.of() : toolCalls;
+	}
 }

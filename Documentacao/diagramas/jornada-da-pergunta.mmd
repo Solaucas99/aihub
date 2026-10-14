@@ -1,0 +1,39 @@
+%% O que acontece com uma pergunta, da entrada até a resposta final (fluxo de decisões).
+flowchart TB
+  Q(["Pergunta do usuário<br/>(o Hub confirma o recebimento na hora)"]) --> P{{"PLANEJADOR<br/>lê a conversa, os resultados anteriores,<br/>os artefatos e o contexto ativo, e decide"}}
+
+  P -->|"conversa simples"| R1["Resposta direta"]
+  P -->|"falta informação"| R2["Pergunta de<br/>esclarecimento"]
+  P -->|"precisa de dados"| T["Cria uma tarefa por especialista,<br/>ordena (produz/consome)<br/>e executa em paralelo"]
+
+  T --> E["ESPECIALISTA<br/>consulta a fonte de dados e responde"]
+  E --> V{{"VALIDADOR<br/>julga a resposta"}}
+
+  V -->|"CONTINUE"| OK["Tarefa aprovada<br/>resultado guardado"]
+  V -->|"RETRY (até 3 vezes)"| E
+  V -->|"RETRY esgotado"| TC["Tarefa cancelada"]
+  V -->|"HITL"| H["Pergunta pendente<br/>ao usuário"]
+  V -->|"CANCEL"| X["Execução<br/>cancelada"]
+
+  OK --> C{{"COMUNICADOR<br/>escreve a introdução"}}
+  TC --> C
+  H --> C
+  X --> C
+
+  C --> S["Resposta final: introdução + respostas dos<br/>especialistas (texto, tabelas, gráficos) + pendências"]
+  R1 --> END(["Usuário vê a resposta no chat"])
+  R2 --> END
+  S --> END
+
+  classDef llm fill:#DCEBFF,stroke:#2563EB,color:#0B2A5B,stroke-width:2px
+  classDef step fill:#F3F4F6,stroke:#6B7280,color:#111827
+  classDef good fill:#DCFCE7,stroke:#16A34A,color:#14532D
+  classDef warn fill:#FEF3C7,stroke:#D97706,color:#78350F
+  classDef bad fill:#FEE2E2,stroke:#DC2626,color:#7F1D1D
+  classDef edge_ fill:#E0F2FE,stroke:#0284C7,color:#0C4A6E
+  class P,V,C,E llm
+  class T step
+  class R1,R2,OK good
+  class H warn
+  class TC,X bad
+  class Q,S,END edge_

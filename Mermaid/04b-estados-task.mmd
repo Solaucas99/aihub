@@ -1,0 +1,17 @@
+%% Estados de uma Task (embutida em agent_runs.tasks) e roteamento por veredito do validador.
+stateDiagram-v2
+  [*] --> NEW : Task.create
+  NEW --> RUNNING : markTaskRunning a cada tentativa
+  RUNNING --> FINISHED : CONTINUE (aprovada, publica artefato se o subagente produz)
+  RUNNING --> FINISHED : HITL (nao aprovada, cria HumanInputRequest PENDING)
+  RUNNING --> NEW : RETRY com attempts menor que max_attempts
+  RUNNING --> CANCELLED : RETRY com attempts maior ou igual a max_attempts
+  RUNNING --> FAILED : excecao na tentativa (a run vira FAILED)
+  NEW --> CANCELLED : dependencia nao aprovada (TASK_SKIPPED)
+  FINISHED --> [*]
+  CANCELLED --> [*]
+  FAILED --> [*]
+  note right of RUNNING
+    CANCEL do validador nao muda a task:
+    cancela a RUN inteira (comunicador escreve o encerramento).
+  end note
